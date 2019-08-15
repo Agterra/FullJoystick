@@ -11,53 +11,45 @@ import SpriteKit
 import FullJoystick
 
 class GameScene: SKScene {
-    private var joystick: FullJoystick!
+    private var movementJoystick: FullJoystick!
+    private var rotationJoystick: FullJoystick!
+    private var movementAndRotationJoystick: FullJoystick!
     private var element: SKSpriteNode!
-
-    override var isUserInteractionEnabled: Bool {
-        get {
-            return true
-        }
-        set {
-            // Not supported
-        }
-    }
 
     override func didMove(to view: SKView) {
         self.backgroundColor = .white
         super.didMove(to: view)
 
-        self.element = SKSpriteNode(color: .green,
-                                    size: CGSize(width: 25.0,
-                                                 height: 25.0))
+        self.element = SKSpriteNode(texture: SKTexture(image: UIImage(named: "tank")!),
+                                    size: CGSize(width: 50.0,
+                                                 height: 50.0))
+        self.element.speed = 0.1
 
-        self.joystick = FullJoystick(delegate: self)
+        self.movementJoystick = FullJoystick(targetNode: self.element,
+                                             fullJoystickType: .movement)
+        self.rotationJoystick = FullJoystick(targetNode: self.element,
+                                             fullJoystickType: .rotation)
 
-        self.addChild(joystick)
+        self.movementAndRotationJoystick = FullJoystick(targetNode: self.element,
+                                                        fullJoystickType: .movementAndRotation)
+        self.movementAndRotationJoystick.joystickColor = .lightGray
+        self.movementAndRotationJoystick.anchorColor = .gray
+
+        self.addChild(movementJoystick)
+        self.addChild(rotationJoystick)
+        self.addChild(movementAndRotationJoystick)
         self.addChild(element)
 
-        joystick.position = CGPoint(x: (self.view?.bounds.midX)!,
-                                    y: (self.view?.bounds.midY)!)
+        movementAndRotationJoystick.position = CGPoint(x: (self.view?.bounds.midX)!,
+                                                       y: (self.view?.bounds.minY)! + 100.0)
+
+        movementJoystick.position = CGPoint(x: (self.view?.bounds.minX)! + 50.0,
+                                            y: (self.view?.bounds.minY)! + 100.0)
+
+        rotationJoystick.position = CGPoint(x: (self.view?.bounds.maxX)! - 50.0,
+                                            y: (self.view?.bounds.minY)! + 100.0)
+
         element.position = CGPoint(x: (self.view?.bounds.midX)!,
                                    y: (self.view?.bounds.midY)!)
-    }
-
-    override func touchesBegan(_ touches: Set<UITouch>,
-                               with event: UIEvent?) {
-        guard let touch = touches.first else {
-            return
-        }
-        let position = touch.location(in: self)
-        self.joystick.position = position
-    }
-
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.joystick.touchesMoved(touches,
-                                   with: event)
-    }
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.joystick.touchesEnded(touches,
-                                   with: event)
     }
 }
